@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import 'bulma/css/bulma.css';
 import './App.scss';
 
-type SortType = 'name' | 'length' | '' ;
+type SortType = 'name' | 'length' | '';
 
 export const goodsFromServer: string[] = [
   'Dumplings',
@@ -18,7 +18,6 @@ export const goodsFromServer: string[] = [
 ];
 
 export const App: React.FC = () => {
-
   const [sortBy, setSortBy] = useState<SortType>('');
   const [goods] = useState<string[]>(goodsFromServer);
 
@@ -28,7 +27,6 @@ export const App: React.FC = () => {
   const isDefaultOrder = sortBy === '' && reversed === false;
 
   const handleSetSort = (field: SortType) => {
-    setReversed(false);
     setSortBy(field);
   };
 
@@ -63,7 +61,7 @@ export const App: React.FC = () => {
     visibleGoods.reverse();
   }
 
- return (
+  return (
     <div className="section content">
       <div className="buttons">
         <button
