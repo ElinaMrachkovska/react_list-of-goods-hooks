@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import 'bulma/css/bulma.css';
 import './App.scss';
+import classNames from 'classnames';
 
-type SortType = 'name' | 'length' | '';
+enum SortType {
+  Name = 'name',
+  Length = 'length',
+  Default = '',
+}
 
-export const goodsFromServer: string[] = [
+export const goodsFromServer = [
   'Dumplings',
   'Carrot',
   'Eggs',
@@ -17,26 +22,40 @@ export const goodsFromServer: string[] = [
   'Garlic',
 ];
 
-export const App: React.FC = () => {
-  const [sortBy, setSortBy] = useState<SortType>('');
-  const [goods] = useState<string[]>(goodsFromServer);
+function getSortedGoods(goods: string[], sortBy: SortType, isReversed: boolean) {
+  const visibleGoods: string[] = [...goods];
 
-  const [reversed, setReversed] = useState<boolean>(false);
+  if (sortBy === 'name') {
+    visibleGoods.sort((a, b) => a.localeCompare(b));
+  } else if (sortBy === 'length') {
+    visibleGoods.sort((a, b) => a.length - b.length || a.localeCompare(b));
+  }
+
+  if (isReversed) {
+    visibleGoods.reverse();
+  }
+  return visibleGoods;
+}
+
+export const App: React.FC = () => {
+  const [sortBy, setSortBy] = useState<SortType>(SortType.Default);
+
+  const [isReversed, setIsReversed] = useState(false);
   const [selectedGoods, setSelectedGoods] = useState<string[]>([]);
 
-  const isDefaultOrder = sortBy === '' && reversed === false;
+  const isDefaultOrder = sortBy === '' && isReversed === false;
 
   const handleSetSort = (field: SortType) => {
     setSortBy(field);
   };
 
   const handleReverseSort = () => {
-    setReversed(current => !current);
+    setIsReversed(current => !current);
   };
 
   const handleResetSort = () => {
-    setSortBy('');
-    setReversed(false);
+    setSortBy(SortType.Default);
+    setIsReversed(false);
   };
 
   const handleSelectGoods = (good: string) => {
@@ -47,19 +66,10 @@ export const App: React.FC = () => {
 
       return [...currentSelectedGoods, good];
     });
+  
   };
 
-  const visibleGoods: string[] = [...goods];
-
-  if (sortBy === 'name') {
-    visibleGoods.sort((a, b) => a.localeCompare(b));
-  } else if (sortBy === 'length') {
-    visibleGoods.sort((a, b) => a.length - b.length || a.localeCompare(b));
-  }
-
-  if (reversed) {
-    visibleGoods.reverse();
-  }
+  const visibleGoods = getSortedGoods(goodsFromServer, sortBy,isReversed);
 
   return (
     <div className="section content">
@@ -67,7 +77,7 @@ export const App: React.FC = () => {
         <button
           type="button"
           className={`button is-info ${sortBy === 'name' ? '' : 'is-light'}`}
-          onClick={() => handleSetSort('name')}
+          onClick={() => handleSetSort(SortType.Name)}
         >
           Sort alphabetically
         </button>
@@ -75,14 +85,17 @@ export const App: React.FC = () => {
         <button
           type="button"
           className={`button is-info ${sortBy === 'length' ? '' : 'is-light'}`}
-          onClick={() => handleSetSort('length')}
+          onClick={() => handleSetSort(SortType.Length)}
         >
           Sort by length
         </button>
 
         <button
           type="button"
-          className={`button is-warning ${reversed ? '' : 'is-light'}`}
+          // className={`button is-warning ${isReversed ? '' : 'is-light'}`}
+          className={classNames('button', {'is-warning' : isReversed, 'is-light' : !isReversed})}
+
+
           onClick={handleReverseSort}
         >
           Reverse
@@ -91,7 +104,7 @@ export const App: React.FC = () => {
         {!isDefaultOrder && (
           <button
             type="button"
-            className="button is-danger is-light"
+            className={classNames('button is-danger', 'is-light')}
             onClick={handleResetSort}
           >
             Reset
@@ -104,9 +117,7 @@ export const App: React.FC = () => {
           <li key={good} data-cy="Good">
             <button
               type="button"
-              className={`button is-small ${
-                selectedGoods.includes(good) ? 'is-success' : 'is-light'
-              }`}
+              className={classNames('button is-small', {'is-success' : selectedGoods.includes(good), 'is-light' : !selectedGoods.includes(good) })}
               onClick={() => handleSelectGoods(good)}
             >
               {good}
