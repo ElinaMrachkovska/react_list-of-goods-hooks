@@ -22,7 +22,11 @@ export const goodsFromServer = [
   'Garlic',
 ];
 
-function getSortedGoods(goods: string[], sortBy: SortType, isReversed: boolean) {
+function getSortedGoods(
+  goods: string[],
+  sortBy: SortType,
+  isReversed: boolean,
+) {
   const visibleGoods: string[] = [...goods];
 
   if (sortBy === 'name') {
@@ -34,6 +38,7 @@ function getSortedGoods(goods: string[], sortBy: SortType, isReversed: boolean) 
   if (isReversed) {
     visibleGoods.reverse();
   }
+
   return visibleGoods;
 }
 
@@ -66,17 +71,18 @@ export const App: React.FC = () => {
 
       return [...currentSelectedGoods, good];
     });
-  
   };
 
-  const visibleGoods = getSortedGoods(goodsFromServer, sortBy,isReversed);
+  const visibleGoods = getSortedGoods(goodsFromServer, sortBy, isReversed);
 
   return (
     <div className="section content">
       <div className="buttons">
         <button
           type="button"
-          className={`button is-info ${sortBy === 'name' ? '' : 'is-light'}`}
+          className={classNames('button is-info', {
+            'is-light': sortBy !== 'name',
+          })}
           onClick={() => handleSetSort(SortType.Name)}
         >
           Sort alphabetically
@@ -84,7 +90,10 @@ export const App: React.FC = () => {
 
         <button
           type="button"
-          className={`button is-info ${sortBy === 'length' ? '' : 'is-light'}`}
+          className={classNames(
+            'button is-success',
+            { 'is-light': sortBy !== 'length' }
+          )}
           onClick={() => handleSetSort(SortType.Length)}
         >
           Sort by length
@@ -92,10 +101,10 @@ export const App: React.FC = () => {
 
         <button
           type="button"
-          // className={`button is-warning ${isReversed ? '' : 'is-light'}`}
-          className={classNames('button', {'is-warning' : isReversed, 'is-light' : !isReversed})}
-
-
+          className={classNames('button', {
+            'is-warning': isReversed,
+            'is-light': !isReversed,
+          })}
           onClick={handleReverseSort}
         >
           Reverse
@@ -117,7 +126,10 @@ export const App: React.FC = () => {
           <li key={good} data-cy="Good">
             <button
               type="button"
-              className={classNames('button is-small', {'is-success' : selectedGoods.includes(good), 'is-light' : !selectedGoods.includes(good) })}
+              className={classNames('button is-small', {
+                'is-success': selectedGoods.includes(good),
+                'is-light': !selectedGoods.includes(good),
+              })}
               onClick={() => handleSelectGoods(good)}
             >
               {good}
