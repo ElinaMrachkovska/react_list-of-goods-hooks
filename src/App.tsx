@@ -29,15 +29,19 @@ function getSortedGoods(
 ) {
   const visibleGoods: string[] = [...goods];
 
-  if (sortBy === 'name') {
-    visibleGoods.sort((a, b) => a.localeCompare(b));
-  } else if (sortBy === 'length') {
-    visibleGoods.sort((a, b) => a.length - b.length || a.localeCompare(b));
+  switch (sortBy) {
+    case SortType.Name:
+      visibleGoods.sort((a, b) => a.localeCompare(b));
+      break;
+    case SortType.Length:
+      visibleGoods.sort((a, b) => a.length - b.length || a.localeCompare(b));
+      break;
+    default:
+
+      break;
   }
 
-  if (isReversed) {
-    visibleGoods.reverse();
-  }
+  if (isReversed) visibleGoods.reverse();
 
   return visibleGoods;
 }
@@ -46,7 +50,6 @@ export const App: React.FC = () => {
   const [sortBy, setSortBy] = useState<SortType>(SortType.Default);
 
   const [isReversed, setIsReversed] = useState(false);
-  const [selectedGoods, setSelectedGoods] = useState<string[]>([]);
 
   const isDefaultOrder = sortBy === '' && isReversed === false;
 
@@ -61,16 +64,6 @@ export const App: React.FC = () => {
   const handleResetSort = () => {
     setSortBy(SortType.Default);
     setIsReversed(false);
-  };
-
-  const handleSelectGoods = (good: string) => {
-    setSelectedGoods((currentSelectedGoods: string[]) => {
-      if (currentSelectedGoods.includes(good)) {
-        return currentSelectedGoods.filter(item => item !== good);
-      }
-
-      return [...currentSelectedGoods, good];
-    });
   };
 
   const visibleGoods = getSortedGoods(goodsFromServer, sortBy, isReversed);
@@ -90,10 +83,9 @@ export const App: React.FC = () => {
 
         <button
           type="button"
-          className={classNames(
-            'button is-success',
-            { 'is-light': sortBy !== 'length' }
-          )}
+          className={classNames('button is-success', {
+            'is-light': sortBy !== 'length',
+          })}
           onClick={() => handleSetSort(SortType.Length)}
         >
           Sort by length
@@ -113,7 +105,7 @@ export const App: React.FC = () => {
         {!isDefaultOrder && (
           <button
             type="button"
-            className={classNames('button is-danger', 'is-light')}
+            className={'button is-danger is-light'}
             onClick={handleResetSort}
           >
             Reset
@@ -124,14 +116,7 @@ export const App: React.FC = () => {
       <ul>
         {visibleGoods.map(good => (
           <li key={good} data-cy="Good">
-            <button
-              type="button"
-              className={classNames('button is-small', {
-                'is-success': selectedGoods.includes(good),
-                'is-light': !selectedGoods.includes(good),
-              })}
-              onClick={() => handleSelectGoods(good)}
-            >
+            <button type="button">
               {good}
             </button>
           </li>
